@@ -1,3 +1,6 @@
+#!/usr/bin/python
+#-*-coding:utf-8-*-
+
 '''This packge contains the components of the testplatform'''
 from UAV_exception import PlaneLowPower, MoveOutOfRegion,IntruderExposed
 
@@ -58,18 +61,18 @@ class MoveComponent(Component):
 class Base(Component):
     '''This is the base.'''
     _name = 'Base'
-    
+
     def charge(self,planes):
         '''charge the planes. need to input the list of planes.'''
         for plane in planes:
             if plane.position == self.position:
                 plane.get_charged()
-                
+
 class Plane(MoveComponent):
     '''This is the plane.'''
     _name = 'Plane'
 
-    def __init__(self,position,num,region_size,max_battery=20, plane_sight = 1, battery = None):
+    def __init__(self,position,num,region_size,max_battery = 20, plane_sight = 1, battery = None):
         super(Plane,self).__init__(position,num,region_size)
         self.__max_battery = max_battery
         self.__plane_sight = plane_sight
@@ -84,12 +87,14 @@ class Plane(MoveComponent):
 
     def get_charged(self):
         self.battery = self.__max_battery
+
     def move(self,cmd):
         assert self.battery >= -3
         super(Plane,self).move(cmd)
         self.battery -= 1
         if self.battery <= 0:
             raise PlaneLowPower(self)
+
     def find_intruders(self,intruders):
         for intruder in intruders:
             if intruder.position[0] <= self.position[0] + self.__plane_sight and intruder.position[0] >= self.position[0] - self.__plane_sight and intruder.position[1] <= self.position[1] + self.__plane_sight and intruder.position[1] >= self.position[1] - self.__plane_sight:
@@ -126,10 +131,6 @@ class Intruder(MoveComponent):
         return self.__live_time
 
 
-
-        
-        
-        
 if __name__ == '__main__':
     p = Plane((7,0),0,(8,8))
     b = Base((3,4),0,(8,8))
@@ -138,8 +139,4 @@ if __name__ == '__main__':
     intruders = [i]
 
     print p.moveable_direction()
-
-
-
-
 

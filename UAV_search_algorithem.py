@@ -1,3 +1,6 @@
+#!/usr/bin/python
+#-*-coding:utf-8-*-
+
 '''This packge contains the algorithem of the UAV searching.
     The algorithem must conform to the standard OperateInterface defined
     in the PlatForm class.'''
@@ -37,7 +40,7 @@ class SemiautoControl(MannulControl):
             pass#print 'Find an intruder at ', plane.intruder_position
         else:
             pass#print 'Everything is allright.'
-        
+
         cmd = self.cmd_list[self.pointer]
         self.pointer += 1
         if self.pointer >= len(self.cmd_list):
@@ -63,7 +66,7 @@ class DirectControl_v1_0Controller(object):
         self.max_battery = max_battery
         self.intruder_num = None
         self.exposed_time = 0
-        
+
         self.stack = [0, 'patrol' ]
         self.state = 'go_to'
         self.go_to_destination = patrol_list[0]
@@ -76,12 +79,12 @@ class DirectControl_v1_0Controller(object):
     def patrol(self):
         def save_patrol():
             self.stack.append(self.patrol_pointer)
-            self.stack.append('patrol')           
+            self.stack.append('patrol')
 
         if self.low_power():
             save_patrol()
             return self.charge()
-        elif self.plane.find_intruder:        
+        elif self.plane.find_intruder:
             save_patrol()
             self.suspect_position = self.plane.intruder_position
             return self.follow()
@@ -124,7 +127,7 @@ class DirectControl_v1_0Controller(object):
             if self.plane.find_intruder:
                 self.hunt_heat = self.max_hunt_heat
                 if self.plane.intruder_num == self.intruder_num:
-                    self.exposed_time += 1               
+                    self.exposed_time += 1
                     if self.exposed_time >= self.max_exposed_time:
                         self.exposed_time = 0
                         return self.state_transfer()
@@ -168,7 +171,7 @@ class DirectControl_v1_0Controller(object):
 
 
 
-class DirectControl_v1_1(test_tools.OperateInterface): 
+class DirectControl_v1_1(test_tools.OperateInterface):
     def __init__(self, max_hunt_heat):
         self.__max_hunt_heat = max_hunt_heat
         return super(DirectControl_v1_1, self).__init__()
@@ -177,7 +180,8 @@ class DirectControl_v1_1(test_tools.OperateInterface):
         #trace planing
         zoom_num = math.ceil(region_size[0] / float(1 + 2 * plane_sight))
         ceil_whole_distance = zoom_num*(region_size[1]-2*plane_sight) + (zoom_num-1)*(2*plane_sight)
-        each_plane_distance = math.ceil(ceil_whole_distance / float(len(planes))) + 2        
+        each_plane_distance = math.ceil(ceil_whole_distance /
+                                        float(len(planes))) + 2
         patrol_list = []
         is_odd = True
         #calculate the coordinate of the patrol line
@@ -216,7 +220,7 @@ class DirectControl_v1_1(test_tools.OperateInterface):
         all_patrol_list = []
         plane_index = 1
         one_patrol_list = PatrolList()
-        for destination in patrol_list:           
+        for destination in patrol_list:
             while tracer.position != destination:
                 tracer.move(test_tools.direct(tracer.position, destination))
                 if tracer.pace_counter >= plane_index * each_plane_distance:
@@ -236,7 +240,7 @@ class DirectControl_v1_1(test_tools.OperateInterface):
                 if test_tools.distance(trace[0], base.position) < test_tools.distance(trace[0], nearest_base.position):
                     nearest_base = base
             nearest_bases.append(nearest_base)
-        
+
         #MainController initialization and others
         self.main_controllers = []
         for index in range(len(planes)):
@@ -256,13 +260,13 @@ class DirectControl_v1_1(test_tools.OperateInterface):
 class DirectControl_v1_1MainController(object):
     '''This is the tracing algorithem DirectControl v1.1.'''
     def __init__(self, plane, base, patrol_list, max_hunt_heat, max_battery, max_exposed_time):
-        self.plane = plane 
+        self.plane = plane
         self.patrol = DirectControl_v1_1PatrolController(self,patrol_list)
         self.goto = DirectControl_v1_1GoToController(self,patrol_list[0])
         self.follow = DirectControl_v1_1FollowController(self,max_hunt_heat, max_exposed_time)
         self.charge = DirectControl_v1_1ChargeController(self, base, max_battery)
         self.state_list = {'patrol': self.patrol, 'goto': self.goto, 'follow': self.follow, 'charge': self.charge}
-                
+
         self.stack = [0, 'patrol' ]
         self.state = 'goto'
         return super(DirectControl_v1_1MainController, self).__init__()
@@ -272,14 +276,14 @@ class DirectControl_v1_1MainController(object):
                 self.state != 'charge':
             self.state_list[self.state].save()
             self.state = 'charge'
-            
+
     def test_find_intruder(self) :
         if self.plane.find_intruder and self.state != 'charge' and self.state != 'follow':
             self.state_list[self.state].save()
             self.state = 'follow'
 
     def next(self):
-        self.test_low_power()  
+        self.test_low_power()
         self.test_find_intruder()  
         return self.state_list[self.state].get_cmd()
 
@@ -382,7 +386,7 @@ class DirectControl_v1_1FollowController(DirectControl_v1_1SubController):
             self.suspect_position = self.main_controller.plane.intruder_position
             #print  '\tSuspect position ' , self.suspect_position
             if self.main_controller.plane.intruder_num == self.intruder_num:
-                self.exposed_time += 1               
+                self.exposed_time += 1
                 if self.exposed_time >= self.max_exposed_time:
                     self.exposed_time = 0
                     return self.main_controller.state_transfer()
@@ -399,7 +403,7 @@ class DirectControl_v1_1FollowController(DirectControl_v1_1SubController):
             else:
                 self.hunt_heat = 0
                 return self.main_controller.state_transfer()
-        
+
 class DirectControl_v1_1ChargeController(DirectControl_v1_1SubController):
     def __init__(self, main_controller, base, max_battery):
         self.base = base
@@ -420,7 +424,7 @@ class DirectControl_v1_1ChargeController(DirectControl_v1_1SubController):
             return test_tools.direct(self.main_controller.plane.position, self.base.position)
         else:
             return self.main_controller.state_transfer()
-        
+
 class RandomControl(test_tools.OperateInterface):
     '''This is a random control algorithem.'''
     def __init__(self, display_cmd = False):
@@ -444,13 +448,9 @@ class RandomControl(test_tools.OperateInterface):
             if plane.find_intruder:
                 print plane, 'find an intruder at ', plane.intruder_position
             else:
-                print plane, 'don\'t see intruder.'       
+                print plane, 'don\'t see intruder.'
             print 'We move the ', plane, 'to', cmd,'.\n'
         return cmd
-
-
-
-
 
 
 if __name__ == '__main__':
@@ -470,4 +470,4 @@ if __name__ == '__main__':
 
     test = DirectControl_v1_1()
     test.initiate(Ps,Bs, region_size, plane_battery, 5, 1)
-    
+

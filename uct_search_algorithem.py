@@ -1,3 +1,6 @@
+#!/usr/bin/python
+#-*-coding:utf-8-*-
+
 '''This packge contains the UCT algorithem of the UAV searching.
     The algorithem conform to the standard OperateInterface defined
     in the PlatForm class.'''
@@ -50,7 +53,7 @@ class UCTControl(test_tools.OperateInterface):
         def decide(self, plane, planes, bases, found_intruders_position):
             '''this decision is made according to UCT algorithm.'''
             #judge which plane to control
-            if plane == self.decision_plane:                
+            if plane == self.decision_plane:
                 if not self.reach_leaf:    #if not reach the node
                     #do the UCT part
                     node = self.search_tree.get_node(self.cmd_list)
@@ -60,7 +63,7 @@ class UCTControl(test_tools.OperateInterface):
                         self.cmd_list.append(CMD)
                         assert CMD in plane.moveable_direction()
                         self.reach_leaf = True
-                        return CMD                   
+                        return CMD
                     else:
                         #if it already pass the leaf node, do the default policy
                         CMD = sorted(node.children.values(), key = self._choose_priority_calculate_rule)[-1].action
@@ -68,7 +71,7 @@ class UCTControl(test_tools.OperateInterface):
                         self.cmd_list.append(CMD)
                         assert CMD in plane.moveable_direction()
                         return CMD
-                else:       
+                else:
                     #if it reach the leaf node
                     CMD = random.choice(plane.moveable_direction())
                     assert CMD in plane.moveable_direction()
@@ -150,7 +153,7 @@ class UCTControl(test_tools.OperateInterface):
         _base_dict3 = {'found':deepcopy(_base_dict2), 'notfound':deepcopy(_base_dict1)}
         for one_plane in planes:
             self.knowledge_of_partners[one_plane.num] = {'normal':deepcopy(_base_dict3), 'endangerous':deepcopy(_base_dict3)}
-        
+
     def decide(self,plane, planes, bases, found_intruders_position):
         '''This method find the best move based on UCT algorithem.
         It would not change each parameter.'''
@@ -218,7 +221,7 @@ class UCTControl(test_tools.OperateInterface):
             #get the command of the heighest probability
             #refresh specific statistic
             self.knowledge_of_partners[plane.num][situation]['notfound'][CMD] += 1
-        return CMD         
+        return CMD
 
 
 
@@ -237,7 +240,9 @@ class UCTControl(test_tools.OperateInterface):
             self.__reward_list[-2] += self.__reward_list[-1] * self.gama
         new_data = {}
         new_data["visit_time"] = used_data["visit_time"] + 1
-        new_data["average_benefit"] = (used_data["average_benefit"] * used_data["visit_time"] + self.__reward_list.pop()) / new_data["visit_time"]    
+        new_data["average_benefit"] = (used_data["average_benefit"] *
+                                       used_data["visit_time"] +
+                                       self.__reward_list.pop()) / new_data["visit_time"]
         return new_data
 
     def _get_refresh_rule(self, reward_list):
@@ -268,7 +273,7 @@ class UCTTreeNode(object):
             path = self.parent.get_path()
             path.append(self.action)
             return path
-        else:           
+        else:
             return []
 
 
@@ -330,7 +335,7 @@ class UCTSearchTree(object):
             return self._find_optimized((sorted(children_nodes, key=choose_priority_calc_func))[-1], choose_priority_calc_func)
         else:
             return node.get_path()
-         
+
     def add_children(self, path, data, untried_moves):
         '''This method add the new node as a child of parent and return it. If the child already existed, it would not add it'''
         assert len(path) != 0
@@ -348,7 +353,7 @@ class UCTSearchTree(object):
         '''This function refresh the whole tree from the bottom node to the root.'''
         node = self.get_node(path)
         self._refresh_tree(node, refresh_rule_func)
-            
+
     def _refresh_tree(self, node, refresh_rule_func):
         '''This function refresh the tree recursivly.'''
         node.data = refresh_rule_func(node.data)
@@ -371,10 +376,4 @@ if __name__ == "__main__":
 
     UCT_controller = UCTControl(0,0,0,0,0, CP=0.5, max_iter = 10)
     UCT_controller.decide(0,0,0)
-
-
-
-        
-
-
 

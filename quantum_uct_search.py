@@ -1,3 +1,5 @@
+#!/usr/bin/python
+#-*-coding:utf-8-*-
 '''this algorithm search the region using analogy of quantum'''
 
 import UAV_exception
@@ -14,7 +16,7 @@ class QuantumUCTControl(test_tools.OperateInterface):
     '''this is the quantum UCT algo'''
 
     #self.partner_preference = PartnerPreference(base, plane_sight, D_max, region_size)
-    
+
     def __init__(self, CP=0.5, max_trajectory = 200, max_depth = 8,
                  reward_gather = 2, reward_find = 0.5, reward_endangerous = -0.1,
                  reward_lost_plane = -1, reward_intruder_life_plus = -0.1, 
@@ -41,12 +43,13 @@ class QuantumUCTControl(test_tools.OperateInterface):
         self.target_move = target_move
         self.partner_preference = PartnerPreference(bases[0], plane_sight, self.max_D, region_size)
         self.prob_grid = ProbabilityGrid(region_size, [plane.position for plane in planes], plane_sight, None)
-                
+
     def decide(self,plane, planes, bases, found_intruders_position):
-        if found_intruders_position:
-            self.prob_grid.update_pdf_to_spercific_position(found_intruders_position[0])
-        else:
-            self.prob_grid.update_pdf_with_no_intruder([one_plane.position for one_plane in planes])
+        if planes.index(plane) == 0:
+            if found_intruders_position:
+                self.prob_grid.update_pdf_to_spercific_position(found_intruders_position[0])
+            else:
+                self.prob_grid.update_pdf_with_no_intruder([one_plane.position for one_plane in planes])
         if self.show_info:
             print "Real distribution."
             display_region(self.prob_grid.pdg)
@@ -71,7 +74,7 @@ class QuantumSimulator(object):
         for plane in planes_list:
             if plane.num == self.simulating_plane_num:
                 self.simulating_plane = plane
-                break      
+                break
         self.initial_planes = planes_list
         self.max_plane_battery = max_plane_battery
         self.plane_sight = plane_sight
@@ -120,7 +123,7 @@ class QuantumSimulator(object):
                 if plane.num == self.simulating_plane_num:
                     #simulating plane
                     try:
-                        simulating_action = random.choice(node.untried_moves)                       
+                        simulating_action = random.choice(node.untried_moves)
                         plane.move(simulating_action)
                         moveable_direction = plane.moveable_direction()
                         assert moveable_direction
@@ -161,8 +164,8 @@ class QuantumSimulator(object):
             #this is weired!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             node.untried_moves.remove(simulating_action)
             node.children[simulating_action] = new_node
-            self.update_node(new_node, q_total)            
-            self.update_node(node, q_total)            
+            self.update_node(new_node, q_total)
+            self.update_node(node, q_total)
             return q_total
         #else it is normal node. apply UCB1 and simulate other plane       
         for plane in planes:
@@ -249,7 +252,7 @@ class QuantumSimulator(object):
             return 0
 
     def update_node(self, node, q_total):
-        '''this is the updating procedure in backpropagation'''        
+        '''this is the updating procedure in backpropagation'''
         node.data["average_benefit"] = (node.data["average_benefit"] * node.data["visit_time"] + q_total) / (node.data["visit_time"] + 1)
         node.data["visit_time"] += 1
 
@@ -312,7 +315,7 @@ class PartnerPreference(object): #haven't tested!!!!!!!!!!!!!!!!!!
             #direct fly to the base
             CMD = test_tools.direct(decide_plane.position, self.base.position)
             return CMD
-            
+
 #此类用于更新PDF
 class ProbabilityGrid(object):
     '''this is the probability grid'''
@@ -330,7 +333,8 @@ class ProbabilityGrid(object):
             num_diffus_able_position = sum([sum(line) for line in diffus_region])
             mean_prob = 1.0 / num_diffus_able_position
             #assign the mean_prob and get the pdg
-            self.pdg = [[item * mean_prob for item in line] for line in diffus_region]            
+            self.pdg = [[item * mean_prob for item in line] for line in
+                        diffus_region]
         assert 0.999 < sum([sum(col) for col in self.pdg]) < 1.001
         return super(ProbabilityGrid, self).__init__()
 
@@ -346,26 +350,36 @@ class ProbabilityGrid(object):
         diffus_region = self.diffusible_region(planes_position_list)
         new_pdg = [[0.0 for y in range(self.region_size[0])] for x in range(self.region_size[1])]
         new_all_planes_sight = self.get_all_planes_sight(planes_position_list)
-        new_get_reward = self.get_all_prob_reward(planes_position_list) #for assertion
+        '''
+        if new_get_reward > 0.999:
+            print planes_position_list
+            for x in range(self.region_size[1]):
+                for y in range(self.region_size[0]):
+                    if self.pdg[x][y] > 0.99:
+                        print "The intruder's probability position is (%d,%d)"\
+                                % (x, y)
+            assert False
+        '''
         #propagate probability
         for x in range(self.region_size[1]):
             for y in range(self.region_size[0]):
-                if (x,y) in new_all_planes_sight:
+                #if (x,y) in new_all_planes_sight:
                     #if this position is in the sight horizon of plane, then it is sure that there is no intruder
-                    continue
+                    #continue
                 deffus_positions = self.get_diffusible_positions(diffus_region, (x,y))
-                assert deffus_positions
-                new_prob = self.pdg[x][y] / float(len(deffus_positions))
-                for deffus_position in deffus_positions:
-                    #propagate
-                    assert 0 <= deffus_position[0] < self.region_size[1] and 0 <= deffus_position[1] < self.region_size[0]
-                    new_pdg[deffus_position[0]][deffus_position[1]] += new_prob
+                if len(deffus_positions) > 0:
+                    new_prob = self.pdg[x][y] / float(len(deffus_positions))
+                    for deffus_position in deffus_positions:
+                        #propagate
+                        assert 0 <= deffus_position[0] < self.region_size[1] and 0 <= deffus_position[1] < self.region_size[0]
+                        new_pdg[deffus_position[0]][deffus_position[1]] += new_prob
         self.pdg = new_pdg
-        now_total_reward = sum([sum(col) for col in self.pdg])
-        assert 0.999 < now_total_reward + new_get_reward < 1.001
-        for x in range(self.region_size[1]):
-            for y in range(self.region_size[0]):
-                self.pdg[x][y] *= 1.0 / now_total_reward
+        now_total_probability = sum([sum(col) for col in self.pdg])
+        assert now_total_probability > 0
+        if now_total_probability < 1:
+            for x in range(self.region_size[1]):
+                for y in range(self.region_size[0]):
+                    self.pdg[x][y] *= 1.0 / now_total_probability
         assert 0.999 < sum([sum(col) for col in self.pdg]) < 1.001
 
     def update_pdf_without_real_feedback(self, planes_position_list):
@@ -379,18 +393,20 @@ class ProbabilityGrid(object):
         for x in range(self.region_size[1]):
             for y in range(self.region_size[0]):
                 deffus_positions = self.get_diffusible_positions(diffus_region, (x,y))
-                assert deffus_positions
-                new_prob = self.pdg[x][y] / float(len(deffus_positions))
-                for deffus_position in deffus_positions:
-                    #propagate
-                    assert 0 <= deffus_position[0] < self.region_size[1] and 0 <= deffus_position[1] < self.region_size[0]
-                    new_pdg[deffus_position[0]][deffus_position[1]] += new_prob
+                if len(deffus_positions) > 0:
+                    new_prob = self.pdg[x][y] / float(len(deffus_positions))
+                    for deffus_position in deffus_positions:
+                        #propagate
+                        assert 0 <= deffus_position[0] < self.region_size[1] and 0 <= deffus_position[1] < self.region_size[0]
+                        new_pdg[deffus_position[0]][deffus_position[1]] += new_prob
         self.pdg = new_pdg
-        now_total_reward = sum([sum(col) for col in self.pdg])
-        for x in range(self.region_size[1]):
-            for y in range(self.region_size[0]):
-                self.pdg[x][y] *= 1.0 / now_total_reward
-        assert 0.999 < sum([sum(col) for col in self.pdg]) < 1.001       
+        now_total_probability = sum([sum(col) for col in self.pdg])
+        assert now_total_probability > 0
+        if now_total_probability < 1:
+            for x in range(self.region_size[1]):
+                for y in range(self.region_size[0]):
+                    self.pdg[x][y] *= 1.0 / now_total_probability
+        assert 0.999 < sum([sum(col) for col in self.pdg]) < 1.001
         self.enviroment_decide_simulating_pdg(planes_position_list)
 
     def enviroment_decide_simulating_pdg(self, planes_position_list):
@@ -406,7 +422,7 @@ class ProbabilityGrid(object):
                     if random.random() <= self.pdg[x][y] / (1 - total_prob_in_sight):
                         #if simulating result is finding the intruder:find a new intruder
                         self.update_pdf_to_spercific_position((x,y))
-                        return                        
+                        return
                     else: #if simulating result is not finding an intruder
                         total_prob_in_sight += self.pdg[x][y]
                         self.pdg[x][y] = 0.0
@@ -470,7 +486,7 @@ class ProbabilityGrid(object):
                     all_sight_positions.append(sight_position)
         return all_sight_positions
 
-        
+
 
 def display_region(region):
     '''This function print the region in the right way'''

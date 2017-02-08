@@ -1,3 +1,6 @@
+#!/usr/bin/python
+#-*-coding:utf-8-*-
+
 '''This is the packge of the UAV test tools.'''
 from Components import Base, Intruder, Plane
 import UAV_exception
@@ -33,13 +36,13 @@ class ResultRecord(object):
         self.file_name = file_name
         self._record_list = []
         return super(ResultRecord, self).__init__()
-    
+
     def add_lost_plane(self, simulate_time):
         self.lost_plane += 1
         if self.store_result:
             self._record_list.append('lost\t'+str(simulate_time))
 
-    def add_intruder_time(self, intruder_time, simulate_time):      
+    def add_intruder_time(self, intruder_time, simulate_time):
         self.average = (self.average*self.intruder_num + intruder_time) / (self.intruder_num + 1)
         self.sqrsum += intruder_time ** 2
         self.intruder_num += 1
@@ -98,10 +101,10 @@ class OperateInterface(object):
     def get_info(self, step_info):
         '''algorithem can get the info of this time if needed.'''
 
-    
+
 class PlatForm(object):
-    def __init__(self, region_size, base_position_list, plane_position_list , 
-                 all_intruder_num, decide_algorithem, max_semo_intruder=1, 
+    def __init__(self, region_size, base_position_list, plane_position_list ,
+                 all_intruder_num, decide_algorithem, max_semo_intruder=1,
                  target_move=False ,max_plane_battery = 20, max_exposed_time=4,
                  plane_sight = 1, show_info = False, max_simulate_time = float("inf"),
                  store_result = False, file_name = 'SimulateResult.txt'):
@@ -215,7 +218,7 @@ class PlatForm(object):
             return random.randint(0,1)
         def rand_posit(region):
             return (random.randint(0,region[0]-1), random.randint(0,region[1]-1))
-        
+
         #initial the algorithem
         self.__decide_algorithem.initiate(deepcopy(self.planes),deepcopy(self.bases),self.__region_size,self.__max_plane_battery,self.__max_exposed_time, self.__plane_sight, self.__max_semo_intruder, self.__target_move)
 
@@ -228,7 +231,7 @@ class PlatForm(object):
         #start test
         while found_intruder < self.__all_intruder_num and len(self.planes) and self.simulate_time <= self.max_simulate_time:
             self.simulate_time += 1
-            
+
             if self.end_simulation:
                 break
             #add intruder randomlly if posibile
@@ -245,11 +248,11 @@ class PlatForm(object):
                     intrd.move(random.choice(intrd.moveable_direction()))
                     if self.show_info:
                         print 'The intruder has moved to ', intrd
-            
+
             #Base charging
             for base in self.bases:
                 base.charge(self.planes)
-            
+
             #try to search intruders
             found_intruders_position = []
             for one_plane in self.planes:
@@ -265,7 +268,7 @@ class PlatForm(object):
                 except UAV_exception.IntruderExposed, EXC:
                     self.__intruder_identified_handler(EXC.intruder)
                     found_intruder += 1
-            
+
             #return step information to algorithm in case it needs
             self.__decide_algorithem.get_info(self.step_info)
             clear_step_info()
@@ -275,14 +278,14 @@ class PlatForm(object):
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
             #if not isinstance(self.__decide_algorithem, QuantumUCTControl): #use single process if it isn't UCT algo
-            if True:    
+            if True:
                 #single process
                 for one_plane in self.planes:
                     #algorithem move the plane one by one
                     _move_cmd = self.__decide_algorithem.decide(one_plane, self.planes, self.bases, found_intruders_position)
                     if self.show_info:
                         print one_plane, "move to ", _move_cmd
-                    self._move(_move_cmd, one_plane)            
+                    self._move(_move_cmd, one_plane)
                 #end single process
 
             else:    #use multiprocess if it's UCT algo   
@@ -301,12 +304,12 @@ class PlatForm(object):
                     new_pipe[0].send(self.planes)
                     new_pipe[0].send(self.bases)
                     new_pipe[0].send(found_intruders_position)
-    
+
                 #get returned cmd and make the move                
                 _move_cmd_list = []
                 for main_pipe in main_pipes:
                     _move_cmd_list.append(main_pipe.recv())
-                
+
                 #move the plane base on the _cmd_list
                 for _one_plane_ii in range(len(self.planes)-1, -1, -1):
                     _one_plane = self.planes[_one_plane_ii]
@@ -315,8 +318,8 @@ class PlatForm(object):
                     status = self._move(_move_cmd_list[_one_plane_ii], _one_plane)
 
                 #end multi-processes-----------failed!
-            
-            
+
+
             #Intruder adding their living(unexposed) time
             for intruder in self.intruders:
                 intruder.add_live_time()
@@ -409,10 +412,10 @@ def list_sum(list):
 
 
 
-        
+
 if __name__ == '__main__':
     print(realetive_position([3,3], [3,3]))
     print(realetive_position([4,4], [3,3]))
     print(realetive_position([1,4], [3,3]))
     print(realetive_position([4,1], [3,3]))
-    
+
