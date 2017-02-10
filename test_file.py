@@ -6,8 +6,8 @@
 if __name__ == "__main__":
     import test_tools
     import UAV_search_algorithem
-    import uct_search_algorithem
-    import quantum_uct_search
+    from uct_search_algorithm import UCTControl
+    from quantum_uct_search.QuantumUCTControl import QuantumUCTControl
 
     #set all work
     '''
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         #start simulation
         test_setting = {'region_size':work['size'], 'base_position_list':work['base_lists'], 'plane_position_list':work['plane_lists'] , 
                         'all_intruder_num':1, 'max_semo_intruder':1, 'target_move':True ,
-                        'max_plane_battery' :80, 'max_exposed_time':3000,
+                        'max_plane_battery' :5, 'max_exposed_time':3000,
                         'plane_sight':1, "show_info":True,
                         "max_simulate_time":100,
                         'store_result':True, 'file_name':work['name']+'('+str(times)+')v2_0.txt'}
@@ -68,7 +68,7 @@ if __name__ == "__main__":
                                 "show_info":False, "gama":0.9}
 
 
-        algorithem = quantum_uct_search.QuantumUCTControl(**algorithem_setting)
+        algorithem = QuantumUCTControl(**algorithem_setting)
         test = test_tools.TestInitiator(algorithem, test_setting)
         record = test.get_result().result()
         #write record

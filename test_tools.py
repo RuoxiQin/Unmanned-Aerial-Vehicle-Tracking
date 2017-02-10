@@ -2,7 +2,9 @@
 #-*-coding:utf-8-*-
 
 '''This is the packge of the UAV test tools.'''
-from Components import Base, Intruder, Plane
+from Components.Base import Base
+from Components.Plane import Plane
+from Components.Intruder import Intruder
 import UAV_exception
 import random
 import math

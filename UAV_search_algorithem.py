@@ -7,7 +7,9 @@
 
 import test_tools
 import math
-import Components
+from Components.Base import Base
+from Components.Plane import Plane
+from Components.Intruder import Intruder
 import random
 
 #实际上没用这个库
