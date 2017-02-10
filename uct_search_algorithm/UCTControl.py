@@ -1,12 +1,14 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
 
-import test_tools
+from test_tools.OperateInterface import OperateInterface
+from test_tools.tools import *
+from test_tools import PlatForm
 
-class UCTControl(test_tools.OperateInterface):
+class UCTControl(OperateInterface):
     '''This is the UCT search algorithem'''
 
-    class _TreePolicyController(test_tools.OperateInterface):
+    class _TreePolicyController(OperateInterface):
         '''This is the tree policy controller which conform to test_tools.OperateInterface'''
         def __init__(self, search_tree, decision_plane, reward_list, 
                      CP, knowledge_of_partners, reward_gather = 2, 
@@ -65,7 +67,7 @@ class UCTControl(test_tools.OperateInterface):
             else:
                 #simulate other planes based on learning probability
                 moveable_direction = plane.moveable_direction()
-                if test_tools.is_endangerous(bases, plane):
+                if is_endangerous(bases, plane):
                     #if this plane is endangerous
                     situation = 'endangerous'
                 else:
@@ -74,7 +76,7 @@ class UCTControl(test_tools.OperateInterface):
                 if found_intruders_position:
                     #if find intruder
                     #get the command of the heighest probability
-                    CMD = sorted(moveable_direction, key = lambda c: self.knowledge_of_partners[plane.num][situation]['found'][test_tools.realetive_position(plane.position, found_intruders_position[0])][c])[-1]
+                    CMD = sorted(moveable_direction, key = lambda c: self.knowledge_of_partners[plane.num][situation]['found'][realetive_position(plane.position, found_intruders_position[0])][c])[-1]
                 else:   #don't find intruder
                     #get the command of the heighest probability
                     CMD = sorted(moveable_direction, key = lambda c: self.knowledge_of_partners[plane.num][situation]['notfound'][c])[-1]
@@ -160,7 +162,7 @@ class UCTControl(test_tools.OperateInterface):
         #start UCT algorithem
         for time in range(self.max_trajectory):
             #simulate based on UCT principle and get the final result
-            test_platform = test_tools.PlatForm(self.region_size, bases, deepcopy(planes), 1, tree_policy_controller,
+            test_platform = PlatForm(self.region_size, bases, deepcopy(planes), 1, tree_policy_controller,
                                                             self.max_semo_intruder, self.target_move, self.max_plane_battery,
                                                             self.intruder_exposed_time, self.plane_sight, show_info = False,
                                                             max_simulate_time = self.max_depth)
@@ -193,7 +195,7 @@ class UCTControl(test_tools.OperateInterface):
         CMD = sorted(search_tree.root.children.values(), key = lambda c: c.data["average_benefit"])[-1].action
         assert CMD in plane.moveable_direction()
         #refresh knowledge of parteners 
-        if test_tools.is_endangerous(bases, plane):
+        if is_endangerous(bases, plane):
             #if this plane is endangerous
             situation = 'endangerous'
         else:
@@ -202,7 +204,7 @@ class UCTControl(test_tools.OperateInterface):
         if found_intruders_position:
             #if find intruder
             #refresh specific statistic
-            self.knowledge_of_partners[plane.num][situation]['found'][test_tools.realetive_position(plane.position, found_intruders_position[0])][CMD] += 1
+            self.knowledge_of_partners[plane.num][situation]['found'][realetive_position(plane.position, found_intruders_position[0])][CMD] += 1
         else:   #don't find intruder
             #get the command of the heighest probability
             #refresh specific statistic

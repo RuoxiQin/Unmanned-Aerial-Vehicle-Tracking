@@ -5,7 +5,8 @@
     The algorithem must conform to the standard OperateInterface defined
     in the PlatForm class.'''
 
-import test_tools
+from test_tools.OperateInterface import OperateInterface
+from test_tools.tools import *
 import math
 from Components.Base import Base
 from Components.Plane import Plane
@@ -14,7 +15,7 @@ import random
 
 #实际上没用这个库
 
-class MannulControl(test_tools.OperateInterface):
+class MannulControl(OperateInterface):
     '''This is a mannul control algorithem.'''
     def initiate(self,planes,bases,region_size,max_plane_battery,intruder_exposed_time, plane_sight, max_semo_intruder, target_move):
         print 'The size of the patrol region is %d * %d' % (region_size[0], region_size[1])
@@ -51,7 +52,7 @@ class SemiautoControl(MannulControl):
         #print 'Input the command of ', plane, '. Battery ',plane.battery,' : ', cmd
         return cmd
 
-class DirectControl_v1_0(test_tools.OperateInterface):
+class DirectControl_v1_0(OperateInterface):
     '''This is the first vision of the tracing algorithem.'''
     pass
 
@@ -95,7 +96,7 @@ class DirectControl_v1_0Controller(object):
                 self.patrol_pointer += 1
                 if self.patrol_pointer >= len(self.state_list):
                     self.patrol_pointer = 0
-            return test_tools.direct(self.plane.position, self.patrol_list[self.patrol_pointer])
+            return direct(self.plane.position, self.patrol_list[self.patrol_pointer])
 
     def go_to(self):
         def save_go_to():
@@ -111,7 +112,7 @@ class DirectControl_v1_0Controller(object):
             return self.follow()
         else:
             if self.plane.position != self.go_to_destination:
-                return test_tools.direct(self.plane.position, self.go_to_destination)
+                return direct(self.plane.position, self.go_to_destination)
             else:
                 return self.state_transfer()
 
@@ -134,22 +135,22 @@ class DirectControl_v1_0Controller(object):
                         self.exposed_time = 0
                         return self.state_transfer()
                     else:
-                        return test_tools.direct(self.plane.position, self.suspect_position)
+                        return direct(self.plane.position, self.suspect_position)
                 else:
                     self.intruder_num = self.plane.intruder_num
                     self.exposed_time = 1
-                    return test_tools.direct(self.plane.position, self.suspect_position)
+                    return direct(self.plane.position, self.suspect_position)
             else:
                 if self.hunt_heat > 0:
                     self.hunt_heat -= 1
-                    return test_tools.direct(self.plane.position, self.suspect_position)
+                    return direct(self.plane.position, self.suspect_position)
                 else:
                     self.hunt_heat = 0
                     return self.state_transfer()
 
     def charge(self):
         if self.plane.position != self.base.position:
-            return test_tools.direct(self.plane.position, self.base.position)
+            return direct(self.plane.position, self.base.position)
         else:
             return self.state_transfer()
 
@@ -168,12 +169,12 @@ class DirectControl_v1_0Controller(object):
         return self.next()
 
     def low_power(self):
-        return self.plane.battery <= test_tools.distance(self.plane.position,self.base.position) + 2
+        return self.plane.battery <= distance(self.plane.position,self.base.position) + 2
 
 
 
 
-class DirectControl_v1_1(test_tools.OperateInterface):
+class DirectControl_v1_1(OperateInterface):
     def __init__(self, max_hunt_heat):
         self.__max_hunt_heat = max_hunt_heat
         return super(DirectControl_v1_1, self).__init__()
@@ -224,7 +225,7 @@ class DirectControl_v1_1(test_tools.OperateInterface):
         one_patrol_list = PatrolList()
         for destination in patrol_list:
             while tracer.position != destination:
-                tracer.move(test_tools.direct(tracer.position, destination))
+                tracer.move(direct(tracer.position, destination))
                 if tracer.pace_counter >= plane_index * each_plane_distance:
                     one_patrol_list.append(tracer.position)
                     all_patrol_list.append(one_patrol_list[:])
@@ -239,7 +240,7 @@ class DirectControl_v1_1(test_tools.OperateInterface):
         for trace in all_patrol_list:
             nearest_base = bases[0]
             for base in bases:
-                if test_tools.distance(trace[0], base.position) < test_tools.distance(trace[0], nearest_base.position):
+                if distance(trace[0], base.position) < distance(trace[0], nearest_base.position):
                     nearest_base = base
             nearest_bases.append(nearest_base)
 
@@ -274,7 +275,7 @@ class DirectControl_v1_1MainController(object):
         return super(DirectControl_v1_1MainController, self).__init__()
 
     def test_low_power(self):
-        if self.plane.battery <= test_tools.distance(self.plane.position,self.charge.base.position) + 2 and\
+        if self.plane.battery <= distance(self.plane.position,self.charge.base.position) + 2 and\
                 self.state != 'charge':
             self.state_list[self.state].save()
             self.state = 'charge'
@@ -332,7 +333,7 @@ class DirectControl_v1_1PatrolController(DirectControl_v1_1SubController):
                 self.pointer += 1
                 if self.pointer >= len(self.patrol_list):
                     self.pointer = 0
-        return test_tools.direct(self.main_controller.plane.position, self.patrol_list[self.pointer])
+        return direct(self.main_controller.plane.position, self.patrol_list[self.pointer])
 
     def get_stack_init(self):
         self.pointer = self.main_controller.stack.pop()
@@ -354,7 +355,7 @@ class DirectControl_v1_1GoToController(DirectControl_v1_1SubController):
 
     def get_cmd(self):
         if self.main_controller.plane.position != self.destination:
-             return test_tools.direct(self.main_controller.plane.position, self.destination)
+             return direct(self.main_controller.plane.position, self.destination)
         else:
              return self.main_controller.state_transfer()
 
@@ -393,15 +394,15 @@ class DirectControl_v1_1FollowController(DirectControl_v1_1SubController):
                     self.exposed_time = 0
                     return self.main_controller.state_transfer()
                 else:
-                    return test_tools.direct(self.main_controller.plane.position, self.suspect_position)
+                    return direct(self.main_controller.plane.position, self.suspect_position)
             else:
                 self.intruder_num = self.main_controller.plane.intruder_num
                 self.exposed_time = 1
-                return test_tools.direct(self.main_controller.plane.position, self.suspect_position)
+                return direct(self.main_controller.plane.position, self.suspect_position)
         else:
             if self.hunt_heat > 0:
                 self.hunt_heat -= 1
-                return test_tools.direct(self.main_controller.plane.position, self.suspect_position)
+                return direct(self.main_controller.plane.position, self.suspect_position)
             else:
                 self.hunt_heat = 0
                 return self.main_controller.state_transfer()
@@ -423,11 +424,11 @@ class DirectControl_v1_1ChargeController(DirectControl_v1_1SubController):
 
     def get_cmd(self):
         if self.main_controller.plane.position != self.base.position:
-            return test_tools.direct(self.main_controller.plane.position, self.base.position)
+            return direct(self.main_controller.plane.position, self.base.position)
         else:
             return self.main_controller.state_transfer()
 
-class RandomControl(test_tools.OperateInterface):
+class RandomControl(OperateInterface):
     '''This is a random control algorithem.'''
     def __init__(self, display_cmd = False):
         self.display_cmd = display_cmd

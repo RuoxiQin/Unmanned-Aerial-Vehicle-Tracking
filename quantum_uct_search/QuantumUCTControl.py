@@ -5,10 +5,10 @@ from copy import deepcopy
 from QuantumSimulator import QuantumSimulator
 from PartnerPreference import PartnerPreference
 from ProbabilityGrid import ProbabilityGrid
-import test_tools
+from test_tools.OperateInterface import OperateInterface
 
 #实际上调用的就是这个控制器，但是其实这是一个为满足接口的东西，主要逻辑在其调用的QuantumSimulator里面
-class QuantumUCTControl(test_tools.OperateInterface):
+class QuantumUCTControl(OperateInterface):
     '''this is the quantum UCT algo'''
 
     #self.partner_preference = PartnerPreference(base, plane_sight, D_max, region_size)

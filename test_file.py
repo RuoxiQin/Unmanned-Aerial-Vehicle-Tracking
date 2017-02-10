@@ -4,7 +4,7 @@
 '''This is the test file.'''
 
 if __name__ == "__main__":
-    import test_tools
+    from test_tools.TestInitiator import TestInitiator
     import UAV_search_algorithem
     from uct_search_algorithm import UCTControl
     from quantum_uct_search.QuantumUCTControl import QuantumUCTControl
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
 
         algorithem = QuantumUCTControl(**algorithem_setting)
-        test = test_tools.TestInitiator(algorithem, test_setting)
+        test = TestInitiator(algorithem, test_setting)
         record = test.get_result().result()
         #write record
         schedule_file = open("simulatingSchedule.txt", 'a+')

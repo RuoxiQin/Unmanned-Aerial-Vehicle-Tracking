@@ -6,7 +6,7 @@ from uct_search_algorithm.UCTTreeNode import UCTTreeNode
 from copy import deepcopy
 import UAV_exception
 import random
-import test_tools
+from test_tools.tools import *
 import math
 import UAV_exception
 
@@ -96,7 +96,7 @@ class QuantumSimulator(object):
             new_planes_position = [plane.position for plane in planes]
             total_this_round_reward = self.reward_find * prob_grid.get_all_prob_reward(new_planes_position)
             #add endangerous reward
-            if test_tools.is_endangerous([self.base], self.simulating_plane):
+            if is_endangerous([self.base], self.simulating_plane):
                 total_this_round_reward += self.reward_endangerous
             #update pdg
             prob_grid.update_pdf_without_real_feedback(new_planes_position)
@@ -142,7 +142,7 @@ class QuantumSimulator(object):
         new_planes_position = [plane.position for plane in planes]
         total_this_round_reward = self.reward_find * prob_grid.get_all_prob_reward(new_planes_position)
         #add endangerous reward
-        if test_tools.is_endangerous([self.base], self.simulating_plane):
+        if is_endangerous([self.base], self.simulating_plane):
             total_this_round_reward += self.reward_endangerous
         #update pdg
         prob_grid.update_pdf_without_real_feedback(new_planes_position)
@@ -184,7 +184,7 @@ class QuantumSimulator(object):
             new_planes_position = [plane.position for plane in planes]
             total_this_round_reward = self.reward_find * prob_grid.get_all_prob_reward(new_planes_position)
             #add endangerous reward
-            if test_tools.is_endangerous([self.base], self.simulating_plane):
+            if is_endangerous([self.base], self.simulating_plane):
                 total_this_round_reward += self.reward_endangerous
             #update pdg
             prob_grid.update_pdf_without_real_feedback(new_planes_position)

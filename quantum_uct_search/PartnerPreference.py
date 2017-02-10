@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 #此类用于根据队友周围的情况，模拟做出队友的运动选择
 
-import test_tools
+from test_tools.tools import *
 
 class PartnerPreference(object): #haven't tested!!!!!!!!!!!!!!!!!!
     '''This is the partner preference'''
@@ -14,7 +14,7 @@ class PartnerPreference(object): #haven't tested!!!!!!!!!!!!!!!!!!
         return super(PartnerPreference, self).__init__()
 
     def decide(self, prob_grid, decide_plane, planes):
-        if decide_plane.battery - test_tools.distance(self.base.position, decide_plane.position) - self.D_max > 2:
+        if decide_plane.battery - distance(self.base.position, decide_plane.position) - self.D_max > 2:
             #if there is enough engery
             #calculate left reward
             reward = {'L':0, 'R':0, 'U':0, 'D':0}
@@ -52,5 +52,5 @@ class PartnerPreference(object): #haven't tested!!!!!!!!!!!!!!!!!!
         else:
             #if it is low power:
             #direct fly to the base
-            CMD = test_tools.direct(decide_plane.position, self.base.position)
+            CMD = direct(decide_plane.position, self.base.position)
             return CMD
