@@ -2,3 +2,4 @@
 *.txt
 *.swp
 design
+.DS_Store
