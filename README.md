@@ -18,8 +18,7 @@ The explanation of the problem and the algorithm can be found [here](http://ieee
 * Python 2.7
 
 ## Experiments
-To test the algorithm, first set up the parameter of the algorithm in 
-``test_file.py``:
+To run the experiments, first set up the parameters of the algorithm and testing environment in ``test_file.py``:
 * ``all_work``: a dict containing a batch of experiment parameters.
 * ``name``: The name of this experiment. The experiment record will be saved
 in ``name``.txt.
@@ -32,7 +31,7 @@ any number of charging bases in the experiment.
 * ``plan_lists``: A list of the initial positions of the drones. You can set
 any number of drones in the experiment.
 
-Then you can start the experiment by command:
+Then you can start the experiment using command:
 
 ```
 python test_file.py
