@@ -1,6 +1,9 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
-#此类用于更新PDF
+
+"""
+Update the Probability Distribution Function (PDF)
+"""
 
 import random
 

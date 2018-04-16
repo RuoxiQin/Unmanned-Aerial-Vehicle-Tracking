@@ -55,13 +55,6 @@ if __name__ == "__main__":
                         "max_simulate_time":100,
                         'store_result':True, 'file_name':work['name']+'('+str(times)+')v2_0.txt'}
 
-        #algorithem setting v1_0
-        #algorithem_setting = {"CP":0.3, "max_trajectory":work['T'], "max_depth":work['D'],
-        #                        "reward_gather":1, "reward_intruder_life_plus": -0.2,
-        #                        "reward_find":0.2 ,"reward_endangerous":-2, "reward_lost_plane":-2,
-        #                        "show_info":False, "gama":0.9}
-
-        #algorithem setting v2_0
         algorithem_setting = {"CP":0.5, "max_trajectory":work['T'], "max_depth":work['D'],
                                 "reward_gather":2, "reward_intruder_life_plus": 0,
                                 "reward_find":1 ,"reward_endangerous":-1.5, "reward_lost_plane":0,

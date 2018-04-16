@@ -1,6 +1,9 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
-#量子模型的主要逻辑，使用递归法实现树搜索
+
+"""
+The Search policy using Quantum Probability Model
+"""
 
 from uct_search_algorithm.UCTTreeNode import UCTTreeNode
 from copy import deepcopy

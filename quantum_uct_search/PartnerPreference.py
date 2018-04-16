@@ -1,10 +1,9 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
-#此类用于根据队友周围的情况，模拟做出队友的运动选择
 
 from test_tools.tools import *
 
-class PartnerPreference(object): #haven't tested!!!!!!!!!!!!!!!!!!
+class PartnerPreference(object):
     '''This is the partner preference'''
     def __init__(self, base, plane_sight, D_max, region_size):
         self.base = base
@@ -51,6 +50,6 @@ class PartnerPreference(object): #haven't tested!!!!!!!!!!!!!!!!!!
             assert 0 #must return something!!!
         else:
             #if it is low power:
-            #direct fly to the base
+            #directly fly to the base
             CMD = direct(decide_plane.position, self.base.position)
             return CMD

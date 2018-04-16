@@ -1,5 +1,4 @@
 *.pyc
 *.txt
 *.swp
-design/*.vpp.bak*
-design/.*
+design

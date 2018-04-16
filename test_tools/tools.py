@@ -1,7 +1,9 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
-#仿真平台
-#define multiprocess function
+
+"""
+The simulation platform
+"""
 
 import random
 

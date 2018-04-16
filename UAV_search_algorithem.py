@@ -13,8 +13,6 @@ from Components.Plane import Plane
 from Components.Intruder import Intruder
 import random
 
-#实际上没用这个库
-
 class MannulControl(OperateInterface):
     '''This is a mannul control algorithem.'''
     def initiate(self,planes,bases,region_size,max_plane_battery,intruder_exposed_time, plane_sight, max_semo_intruder, target_move):
